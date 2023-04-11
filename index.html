@@ -104,6 +104,7 @@
         <div class="tip-box-title"><p><b>How to navigate the map</b></p></div>
         <p>On desktop, tilt and rotate the map by clicking and dragging the cursor while holding the right mouse button or ctrl key.</p>
         <p>On mobile, hold two fingers down on the screen and move them to tilt and rotate the map.</p>
+        <p>Click on each cube to see details.</p>
     </div>
     <div id="tip-box-btn">
         Close
@@ -350,6 +351,7 @@
             .addTo(map);            
 
     });
+    map.addControl(new mapboxgl.NavigationControl());
 </script>
 </body>
 </html>
