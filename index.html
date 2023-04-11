@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Mapbox GL JS Marker with 3D Cube</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.css' rel='stylesheet' />
+
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+<style>
+        #legend {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        font-size: 12px;
+        background-color: rgba(256, 256, 256, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        }
+    
+        .legend-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 16px;
+        }
+    
+        .color-ramp {
+        height: 12px;
+        width: 100%;
+        display: flex;
+        }
+    
+        .color-stop {
+        flex: 1;
+        height: 100%;
+        font-size: 20px;
+        }
+    
+        .legend-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        }
+    
+        .legend-label {
+        text-align: center;
+        flex: 1;
+        padding-right:20px;
+        padding-left:-10px;
+        }
+    
+        .custom-popup .mapboxgl-popup-content {
+        padding: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+        text-align: left;
+        background: rgba(255, 255, 255, 0.85);
+        }
+    
+        .mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+        border-top-color: rgba(255, 255, 255, 0.85);
+        border-bottom-color: rgba(255, 255, 255, 0.85);
+        }
+    
+</style>
+
+<div id='map'></div>
+
+    <div id="legend">
+        <div class="legend-title">Permitted horsepower</div>
+        <div class="color-ramp">
+            <div class="color-stop" style="background-color: #d4b9da"></div>
+            <div class="color-stop" style="background-color: #c994c7"></div>
+            <div class="color-stop" style="background-color: #df65b0"></div>
+            <div class="color-stop" style="background-color: #dd1c77"></div>
+            <div class="color-stop" style="background-color: #980043"></div>
+        </div>
+        <div class="legend-labels">
+            <div class="legend-label">500</div>
+            <div class="legend-label">1000</div>
+            <div class="legend-label">1500</div>
+            <div class="legend-label">2000</div>
+            <div class="legend-label">2500</div>
+        </div>
+    </div>
+
+<script>
+    var markers = [
+        [102.682091,17.845641,3717.95,"ห้างหุ้นส่วนจำกัด 999 ทรายเงิน","Nong Khai","Mueang Nong Khai","Kuan Wan","6"],
+        [103.286253,18.293866,1604,"นางสาวสุวารี คิรินทร์","Nong Khai","Rattanawapi","Ban Ton","2"],
+        [103.53018,18.42123,1590,"ห้างหุ้นส่วนจำกัด ท่าทรายเนรมิตบึงกาฬ","Bueng Kan","Mueang Bueng Kan","Khai Si","7"],
+        [102.943089,18.001037,1446,"บริษัท ที.อาร์. เจนเนอรัล เซอร์วิส จำกัด","Nong Khai","Mueang Nong Khai","Ban Duea","3"],
+        [103.0739,18.08222,1405.17,"บริษัท ร่มโพธิ์ศรีสุริยะ จำกัด","Nong Khai","Phon Phisai","Kut Bong","5"],
+        [104.82998,15.24469,1400,"ห้างหุ้นส่วนจำกัด เขมราฐ แกร็บเวล","Ubon Ratchathani","Na Tan","Phalan","9"],
+        [103.818452,18.333813,1360,"นางกลีบประทุม มาละ","Bueng Kan","Mueang Bueng Kan","Khok Kong","4"],
+        [101.58121,17.854,1313,"นายไพรัชน์ เรืองกิตติโกศล","Loei","Chiang Khan","Pak Tom","5"],
+        [103.280312,18.29153,1218,"บริษัท อมตะค้ากรวดทราย (2558) จำกัด","Nong Khai","Rattanawapi","Ban Ton","2"],
+        [102.49447,17.964979,1210.09,"นายมนตรี เกษรพรหม","Nong Khai","Si Chiang Mai","Ban Mo","6"],
+        [101.57811,17.86424,1130,"บริษัท ดี.แอนด์.มายด์ จำกัด","Loei","Chiang Khan","Pak Tom","5"],
+        [101.57513,17.86465,1113,"บริษัท ดี.แอนด์.มายด์ จำกัด","Loei","Chiang Khan","Pak Tom","5"],
+        [104.666256,17.541751,997.28,"นายกิตติภพ เจริญสุข","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [103.837199,18.314277,970,"ห้างหุ้นส่วนจำกัด ท่าทราย พีเอส","Bueng Kan","Mueang Bueng Kan","Khok Kong","7"],
+        [102.49457,17.96497,960,"ห้างหุ้นส่วนจำกัด จิราวัฒน์ 2005","Nong Khai","Si Chiang Mai","Ban Mo","8"],
+        [103.03492,17.97103,880,"บริษัท อุดรสหโชค จำกัด","Nong Khai","Phon Phisai","Wat Luang","3"],
+        [103.359841,18.433486,802.57,"นายทนงศักดิ์ ระวะรักษ์","Bueng Kan","Mueang Bueng Kan","Ho Kham","5"],
+        [103.842266,18.301356,802.57,"บริษัท ชัยพรสโตน กรุ๊ป 2561 จำกัด","Bueng Kan","Mueang Bueng Kan","Khok Kong","7"],
+        [103.832107,18.324137,802.57,"บริษัท ช้าง คอปเปอร์เรชั่น จำกัด","Bueng Kan","Mueang Bueng Kan","Khok Kong","7"],
+        [103.773006,18.341067,765,"ห้างหุ้นส่วนจำกัด ท่าทรายนำโชคสุนทร","Bueng Kan","Mueang Bueng Kan","Khok Kong","5"],
+        [102.95844,17.99933,640,"นางสาววีณา ศุภกิจเรืองโรจน์","Nong Khai","Mueang Nong Khai","Ban Duea","10"],
+        [102.948458,17.997836,640,"ห้างหุ้นส่วนจำกัด ธาเนตร โภคทรัพย์อนันต์","Nong Khai","Mueang Nong Khai","Ban Duea","10"],
+        [103.363753,18.434035,640,"นางสุพัตรา วงษ์คงคำ","Bueng Kan","Mueang Bueng Kan","Ho Kham","5"],
+        [103.770625,18.340361,640,"ห้างหุ้นส่วนจำกัด ไชยเลิศชินภัทร 1989","Bueng Kan","Mueang Bueng Kan","Khok Kong","5"],
+        [103.775214,18.341171,640,"ห้างหุ้นส่วนจำกัด กรีทองโปรดักส์","Bueng Kan","Mueang Bueng Kan","Khok Kong","5"],
+        [103.832979,18.322471,640,"ห้างหุ้นส่วนจำกัด จี.พี.เอส.ปรีชา","Bueng Kan","Mueang Bueng Kan","Khok Kong","7"],
+        [104.79481,17.18036,640,"ห้างหุ้นส่วนจำกัด อ้นมา อิมปอร์ต เอกซ์ปอร์ต","Nakhon Phanom","Mueang Nakhon Phanom","Ban Klang","2"],
+        [104.168138,18.040016,630,"นายจุฑัชพงศ์ โฆทินวัฒน์","Nakhon Phanom","Ban Phaeng","Phai Lom","8"],
+        [103.819895,18.333079,595,"นายประสงค์ โคตรสมบัติ","Bueng Kan","Mueang Bueng Kan","Khok Kong",""],
+        [101.57741,17.86397,592,"นางสุพัตรา สุพรหมจักร","Loei","Chiang Khan","Pak Tom","5"],
+        [101.57959,17.85885,592,"นางสุพัตรา สุพรหมจักร","Loei","Chiang Khan","Pak Tom","5"],
+        [101.57811,17.86424,592,"นางสาวอินทิรา สุพรหมจักร","Loei","Chiang Khan","Pak Tom","5"],
+        [101.5799,17.85759,591,"นางสาววิรัตน์ ศิลธรรม","Loei","Chiang Khan","Pak Tom","5"],
+        [101.58028,17.85667,590,"นายสิริพงษ์ ปัญโญวัฒน์","Loei","Chiang Khan","Pak Tom","5"],
+        [101.581012,17.856268,590,"นางสาวมาลินี พลซา","Loei","Chiang Khan","Pak Tom","5"],
+        [104.794479,17.369021,588,"นายสิงหเดช วชิรเพชรปราณี","Nakhon Phanom","Mueang Nakhon Phanom","Tha Kho","7"],
+        [104.533015,17.615031,585,"ห้างหุ้นส่วนจำกัด พาหุงรุ่งเรือง","Nakhon Phanom","Tha Uthen","Tha Champa","1"],
+        [104.424263,17.707594,585,"นายอภิชาต ดีบุกคำ","Nakhon Phanom","Tha Uthen","Phanom","6"],
+        [104.82198,15.25313,560,"นางสาวหทัยชนก สุภะโคตร","Ubon Ratchathani","Na Tan","Phalan",""],
+        [103.75943,18.28901,510,"ห้างหุ้นส่วนจำกัด มงคลธรรม","Bueng Kan","Mueang Bueng Kan","Khok Kong","4"],
+        [104.570035,17.594663,506,"ห้างหุ้นส่วนจำกัด ส.ศรีสุวรรณ(ประเทศไทย)","Nakhon Phanom","Tha Uthen","Tha Uthen",""],
+        [104.570689,17.59409,490,"นางสาวปาจรีย์ สมสอาด","Nakhon Phanom","Tha Uthen","Tha Uthen","7"],
+        [104.570035,17.594663,490,"นางเกษี เนตรสาย","Nakhon Phanom","Tha Uthen","Tha Uthen","7"],
+        [104.570035,17.594663,490,"นางสาวโศภิตา ปาสานะโก","Nakhon Phanom","Tha Uthen","Tha Uthen","3"],
+        [104.53442,17.613916,490,"บริษัท นครพนมเจริญศรี จำกัด","Nakhon Phanom","Tha Uthen","Tha Champa","6"],
+        [104.670172,17.540022,490,"ห้างหุ้นส่วนจำกัด ท่าทรายนำโชคสุนทร","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [101.5829,17.851753,490,"นางสาวรัตนาพร ผุยชาดำ","Loei","Chiang Khan","Pak Tom","5"],
+        [104.570035,17.594663,460,"นายธงทอง เกษมสิน","Nakhon Phanom","Tha Uthen","Tha Uthen","6"],
+        [104.673251,17.538324,460,"นายทัตเทพ อูฐยาว","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.673251,17.538324,460,"นางนวลกนก อูฐยาว","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.570035,17.594663,430,"ห้างหุ้นส่วนจำกัด ท่าทราย ช.รุ่งเรือง","Nakhon Phanom","Tha Uthen","Tha Uthen","7"],
+        [104.535622,17.613426,426,"นางประไพ ฤทธิ์คง","Nakhon Phanom","Tha Uthen","Tha Champa","2"],
+        [104.570035,17.594663,412,"ห้างหุ้นส่วนจำกัด อิ่มทั่วบรืการ","Nakhon Phanom","Tha Uthen","Tha Uthen","3"],
+        [101.5778,17.86395,405,"นายสาโรช วรรณวิเชษฐ์","Loei","Chiang Khan","Pak Tom","5"],
+        [104.565541,17.596769,393,"บริษัท นามณรงค์ เทคดิ้ง จำกัด","Nakhon Phanom","Tha Uthen","Tha Uthen","3"],
+        [101.74181,17.61907,386,"นางสาววิรัตน์ ศิลธรรม","Loei","Mueang Loei","Si Song Rak","9"],
+        [104.570035,17.594663,385,"นางศุภจิรา ทุมสุวรรณ","Nakhon Phanom","Tha Uthen","Tha Uthen","7"],
+        [104.570035,17.594663,385,"บริษัท น้ำโขง กรวด ทราย จำกัด","Nakhon Phanom","Tha Uthen","Tha Uthen","7"],
+        [104.832911,16.458152,380,"ห้างหุ้นส่วนจำกัด ท่าทรายทรัพย์ทรายทอง 2001","Mukdahan","Mueang Mukdahan","Na Si Nuan","ึ7"],
+        [104.667318,17.541199,370,"บริษัท กิจการร่วมค้า ไทย-ลาว จำกัด","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.66455,17.542273,370,"นางสาวนารนาถ บุราณเศรษฐ","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.675472,17.53724,370,"นางเบญจรัตน์ สิงห์สมบุญ","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.7442,16.651531,360,"นางสาววาสนา กำยาน","Mukdahan","Wan Yai","Bang Sai Noi","6"],
+        [103.44795,18.42652,350,"นางนิภา โทรักษา","Bueng Kan","Mueang Bueng Kan","Ho Kham","1"],
+        [104.876039,16.373611,340,"บริษัท หินสวย ทรายงาม จำกัด","Mukdahan","Don Tan","Pho Sai","1"],
+        [104.837911,16.454378,330,"นางสาววรวรรณ บุญสุวรรณโชติ","Mukdahan","Mueang Mukdahan","Na Si Nuan","1"],
+        [104.742152,16.648107,330,"ห้างหุ้นส่วนจำกัด เอ พี แมชชีนเนอรี่ คอนสตรั๊คชั่น","Mukdahan","Wan Yai","Bang Sai Noi","1"],
+        [104.737349,16.625798,330,"ห้างหุ้นส่วนจำกัด ท่าทรายโชคบริบูรณ์","Mukdahan","Wan Yai","Bang Sai Noi","9"],
+        [103.08625,18.05407,320,"บริษัท ศิริสุทโธค้ากรวดทราย จำกัด","Nong Khai","Phon Phisai","Kut Bong","5"],
+        [104.872743,16.381279,320,"นายไชยรัตน์ ลุสวัสดิ์","Mukdahan","Don Tan","Pho Sai","4"],
+        [104.745758,16.659437,320,"บริษัท ท่าทรายอนันต์พร มุกดาหาร จำกัด","Mukdahan","Wan Yai","Chanot","4"],
+        [103.377186,18.436366,320,"นายประวัตร เสียงล้ำ","Bueng Kan","Mueang Bueng Kan","Ho Kham","5"],
+        [103.834314,18.319981,320,"ห้างหุ้นส่วนจำกัด กิจธาราทรัพย์ ","Bueng Kan","Mueang Bueng Kan","Khok Kong","7"],
+        [103.771809,18.340866,320,"นางสุภาพ เจริญสุข","Bueng Kan","Mueang Bueng Kan","Khok Kong","5"],
+        [103.825019,18.330469,320,"บริษัท ช.ทวีรุ่งเรือง จำกัด","Bueng Kan","Mueang Bueng Kan","Khok Kong","7"],
+        [104.17157,18.02691,320,"นายสมพร จันบง","Bueng Kan","Bueng Khong Long","Dong Bang","2"],
+        [104.534496,17.614233,320,"นายสาทิศ กาสี","Nakhon Phanom","Tha Uthen","Tha Champa","6"],
+        [104.6828,17.534498,320,"นายชิตชัย  ศิระสกุลชัย","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.66455,17.542273,320,"บริษัท สุวคุณ จำกัด","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.674066,17.537945,295,"ห้างหุ้นส่วนจำกัด เลิศชัยนครพนม","Nakhon Phanom","Tha Uthen","Woen Phrabat","5"],
+        [104.189683,18.016185,295,"หจก.นำสินพัฒนาก่อสร้าง จำกัด","Nakhon Phanom","Ban Phaeng","Phai Lom","2"],
+        [105.189954,16.051838,288,"ห้างหุ้นส่วนจำกัด ท่าทรายโชคมีชัย","Ubon Ratchathani","Khemmarat","Khemmarat","13"],
+        [105.374764,15.985109,280,"ห้างหุ้นส่วนจำกัด หทัยแก้ว อิมปอร์ต เอ็กปอร์ต อินดัสตรี้ส์","Ubon Ratchathani","Na Tan","Phalan","3"],
+        [104.1546,18.05113,280,"ห้างหุ้นส่วนจำกัด ท่าทราย ช.รุ่งเรือง","Bueng Kan","Bueng Khong Long","Dong Bang","2"],
+        [104.074342,18.179618,275,"ห้างหุ้นส่วนจำกัด ท่าทราย วรณัน","Bueng Kan","Bung Khla","Khok Kwang","6"],
+        [104.741196,16.644206,270,"ห้างหุ้นส่วนจำกัด ป.มุกดาหาร","Mukdahan","Wan Yai","Bang Sai Noi","9"],
+        [104.74792,16.84131,250,"นายนิมิตร เสนาพันธ์","Nakhon Phanom","That Phanom","Nam Kam","4"],
+        [104.74526,16.839248,250,"นายอมรรัตน์ ประสพสุข","Nakhon Phanom","That Phanom","Nam Kam","4"],
+        [104.570035,17.594663,245,"นายโชคชัย กิตติศรีวรพันธุ์","Nakhon Phanom","Tha Uthen","Tha Uthen","7"],
+        [103.44812,18.4264,195,"นางนิภา โทรักษา","Bueng Kan","Mueang Bueng Kan","Ho Kham","1"],
+        [104.1661,18.0402,195,"ห้างหุ้นส่วนจำกัด ท่าทรายแสงชัย 2005","Bueng Kan","Bueng Khong Long","Bueng Khong Long",""],
+        [104.14481,18.03404,195,"ห้างหุ้นส่วนจำกัด ท่าทรายแสงชัย 2005","Bueng Kan","Bueng Khong Long","Dong Bang","4"],
+        [104.742756,16.650371,150,"ห้างหุ้นส่วนจำกัด ท่าทรายศรีเผย มุกดาหาร","Mukdahan","Wan Yai","Bang Sai Noi","6"],
+        [104.79184,17.36636,70,"ห้างหุ้นส่วนจำกัด บ่อทรายทรัพย์นาคราช","Nakhon Phanom","Mueang Nakhon Phanom","Tha Kho","14"],
+    ];
+
+    var colorStops = [  
+        [5000, '#d4b9da'],    
+        [10000, '#c994c7'],
+        [15000, '#df65b0'],
+        [20000, '#dd1c77'],
+        [25000, '#980043'],
+    ];
+
+    var layers_markers = [];
+    for (var i = 0; i < markers.length; i++) {
+        var layer_single = 'cube'+i;
+        layers_markers.push(layer_single);
+        // console.log(layers_markers); 
+    }
+
+    mapboxgl.accessToken = 'pk.eyJ1Ijoia3VhbmdrZW5nIiwiYSI6ImNsNXVibXhrNzBlNzUzamxhaHlrbHJsemcifQ.pi3jb5qDip_6YHTMDxDO5Q';
+
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/kuangkeng/clg69hdtt001j01qxvpnpquag',
+        center: [104.21,16.65],
+        zoom: 8,
+        maxZoom:13,
+        pitch: 60
+    });
+
+    map.on('load', function() {
+        for (var i = 0; i < markers.length; i++) {
+            var cubeGeoJSON = {
+                "type": "FeatureCollection",
+                "features": [{
+                    "type": "Feature",
+                    "properties": {
+                        "id":i,
+                        "height": (markers[i][2]*10)
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [markers[i][0]-0.002, markers[i][1]-0.002],
+                            [markers[i][0]+0.002, markers[i][1]-0.002],
+                            [markers[i][0]+0.002, markers[i][1]+0.002],
+                            [markers[i][0]-0.002, markers[i][1]+0.002],
+                            [markers[i][0]-0.002, markers[i][1]-0.002],
+                        ]]
+                    }
+                }]
+            };
+
+            var cubeLayer = {
+                'id': 'cube' + i,
+                'type': 'fill-extrusion',
+                'source': {
+                    'type': 'geojson',
+                    'data': cubeGeoJSON
+                },
+                'paint': {
+                    // 'fill-extrusion-height': (markers[i][2] * 10),
+                    'fill-extrusion-height': {
+                'type': 'identity',
+                'property': 'height'
+            },
+                    // 'fill-extrusion-color': '#f00',
+                    'fill-extrusion-color': [  'interpolate',  ['linear'],
+                        ['get', 'height'],
+                        colorStops[0][0], colorStops[0][1],
+                        colorStops[1][0], colorStops[1][1],
+                        colorStops[2][0], colorStops[2][1],
+                        colorStops[3][0], colorStops[3][1],
+                        colorStops[4][0], colorStops[4][1],
+                        ],
+                    'fill-extrusion-opacity': 1
+                }
+            };
+            map.addLayer(cubeLayer);   
+            
+            map.on('mouseenter', 'cube' + i, function() {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'cube' + i, function() {
+                map.getCanvas().style.cursor = '';
+            });
+        }
+    });
+    
+    map.on('click', function(e) {
+        var features = map.queryRenderedFeatures(e.point, { layers: layers_markers });
+        if (!features.length) {
+            return;
+        }
+        
+        var feature = features[0];
+        var id = feature.properties.id;
+        var height = feature.properties.height;
+        var coordinates = feature.geometry.coordinates.slice(); //this will give 5 coordinates as the cube has 4 corners 
+        var markerCoordinatesLng = (coordinates[0][0][0]+coordinates[0][2][0])/2; //Longitude needs to be the middle of the cube witdh
+        var markerCoordinates = [markerCoordinatesLng,coordinates[0][0][1]]; 
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0][0]) > 180) {
+            coordinates[0][0] += e.lngLat.lng > coordinates[0][0] ? 360 : -360;
+        }
+        
+        // Create a new popup with the data from your array
+        var hp_value = parseInt(height)/10;
+        var popupContent = markers[id][3] +'<br>'+markers[id][4]+'<br>'+markers[id][5]+'<br>'+markers[id][6]+'<br> Permitted horsepower: ' + hp_value;                    
+        new mapboxgl.Popup({
+            className: 'custom-popup',
+            anchor: 'top',
+            closeButton: false,
+            })
+            .setLngLat(markerCoordinates)
+            .setHTML(popupContent)
+            .addTo(map);            
+
+    });
+</script>
+</body>
+</html>
