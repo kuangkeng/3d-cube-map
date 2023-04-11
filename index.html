@@ -70,10 +70,45 @@
         border-top-color: rgba(255, 255, 255, 0.85);
         border-bottom-color: rgba(255, 255, 255, 0.85);
         }
-    
+
+        .tip-box {
+        position:fixed;
+        top:200px;
+        left:50%;
+        width:270px;
+        margin-left: -125px;
+        z-index: 9999;
+        padding:0px 10px 10px;
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 5px;
+        font-size: 14px;
+        }
+        .tip-box-title{
+            text-align: center;
+        }
+
+        #tip-box-btn{
+            background-color: rgba(0, 0, 0, 0.3);
+            margin:0 auto;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            width: 100px;
+            cursor: pointer;
+        }
 </style>
 
 <div id='map'></div>
+<div class="tip-box">
+    <div class="tip-box-text">
+        <div class="tip-box-title"><p><b>How to navigate the map</b></p></div>
+        <p>On desktop, tilt and rotate the map by clicking and dragging the cursor while holding the right mouse button or ctrl key.</p>
+        <p>On mobile, hold two fingers down on the screen and move them to tilt and rotate the map.</p>
+    </div>
+    <div id="tip-box-btn">
+        Close
+    </div>    
+</div>
 <div id="legend">
     <div class="legend-title">Permitted horsepower</div>
     <div class="color-ramp">
@@ -90,14 +125,15 @@
         <div class="legend-label">2000</div>
         <div class="legend-label">2500</div>
     </div>
-    <div class="legend-text">
-        On desktop, tilt and rotate the map by clicking and dragging the cursor while holding the right mouse button or ctrl key.
-        <br>
-        On mobile, hold two fingers down on the screen and move them to tilt and rotate the map.
-    </div>
 </div>
 
 <script>
+    var tipbox = document.querySelector('.tip-box')
+    var tipboxbtn = document.getElementById('tip-box-btn');
+    tipboxbtn.addEventListener('click', function() {
+        tipbox.style.display = 'none';
+    });
+
     var markers = [
         [102.682091,17.845641,3717.95,"ห้างหุ้นส่วนจำกัด 999 ทรายเงิน","Nong Khai","Mueang Nong Khai","Kuan Wan","6"],
         [103.286253,18.293866,1604,"นางสาวสุวารี คิรินทร์","Nong Khai","Rattanawapi","Ban Ton","2"],
