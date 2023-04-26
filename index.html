@@ -248,15 +248,16 @@
     }
 
     mapboxgl.accessToken = 'pk.eyJ1Ijoia3VhbmdrZW5nIiwiYSI6ImNsNXVibXhrNzBlNzUzamxhaHlrbHJsemcifQ.pi3jb5qDip_6YHTMDxDO5Q';
-
+    var bounds = [[101.54,15.21],[105.4,18.47]];
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/kuangkeng/clg69hdtt001j01qxvpnpquag',
-        center: [104.21,16.65],
-        zoom: 8,
+        center: [103.8,18.3],
+        zoom: 10,
         maxZoom:13,
         pitch: 60
     });
+    map.setMaxBounds(bounds);
 
     map.on('load', function() {
         for (var i = 0; i < markers.length; i++) {
